@@ -1,99 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Just a Friendly Note ✨</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Special Note for You ✨</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <style>
-    @keyframes float {0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-    .float { animation:float 5s ease-in-out infinite; }
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Dancing+Script:wght@700&display=swap');
 
-    @keyframes glow {0%,100%{box-shadow:0 0 12px rgba(236,72,153,.35)}50%{box-shadow:0 0 30px rgba(168,85,247,.75)}}
-    .glow { animation:glow 3s ease-in-out infinite; }
+    body { font-family: 'Outfit', sans-serif; background: #05050a; color: #e2e8f0; overflow-x: hidden; margin: 0; }
+    
+    /* Twinkling Star Background */
+    #star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #11112b 0%, #05050a 100%); overflow: hidden; }
+    .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: twinkle var(--duration) infinite ease-in-out; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px white; } }
 
-    @keyframes fadeUp {from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
-    .fadeUp { animation:fadeUp 1.1s ease forwards; }
+    /* Polaroid Styles */
+    .polaroid { background: white; padding: 10px 10px 30px 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transform: rotate(-3deg); transition: 0.5s; }
+    .polaroid:hover { transform: rotate(0deg) scale(1.1); z-index: 50; }
 
-    @keyframes neonText {0%,100%{text-shadow:0 0 8px #ec4899}50%{text-shadow:0 0 22px #a855f7}}
-    .neon { animation:neonText 3s infinite; }
+    /* Music Disk */
+    .music-disk { animation: rotate 4s linear infinite; border: 2px solid #ec4899; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Custom Cursor */
+    .cursor { border-left: 3px solid #ec4899; animation: blink 0.8s infinite; margin-left: 3px; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Floating Background Sparkles */
+    .bg-float { position: fixed; bottom: -50px; pointer-events: none; opacity: 0.4; z-index: 1; animation: continuousRise 10s linear forwards; }
+    @keyframes continuousRise { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+
+    /* Heart Explosion for Surprise */
+    .floating-heart { position: fixed; pointer-events: none; z-index: 999; animation: rise 5s ease-in forwards; }
+    @keyframes rise { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+
+    /* Glass Effect Containers */
+    .glass-envelope { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 30px; box-shadow: 0 0 30px rgba(236, 72, 153, 0.05); }
+    
+    #secret-box { display: none; margin-top: 2rem; border: 1px solid rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.05); }
+
+    .quirky-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .quirky-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.08); border-color: rgba(236, 72, 153, 0.4); }
   </style>
 </head>
-<body class="bg-gradient-to-br from-[#0b0b14] via-[#0f1020] to-[#05050d] text-gray-200 overflow-x-hidden">
+<body>
 
-<!-- HERO -->
-<section class="min-h-screen flex items-center justify-center text-center px-6 relative">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,#1f1147,transparent_65%)]"></div>
-  <div class="relative z-10 max-w-3xl fadeUp">
-    <h1 class="text-4xl md:text-6xl font-extrabold text-pink-500 neon">Hey There 👋</h1>
-    <p class="mt-6 text-lg md:text-2xl text-gray-300">Sometimes the simplest things feel the most genuine ✨</p>
+<div id="star-container"></div>
+
+<div class="fixed top-6 right-6 z-[100] flex items-center gap-3 bg-black/40 p-2 rounded-full border border-white/10">
+    <div id="disk" class="w-10 h-10 rounded-full music-disk flex items-center justify-center bg-pink-500 overflow-hidden">
+        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Shinchan" alt="music">
+    </div>
+    <span class="text-xs font-bold pr-2 tracking-widest text-pink-400 uppercase">Playing: Shinchan.mp3</span>
+</div>
+
+<audio id="shinchanMusic" loop><source src="shinchan_theme_song.mp3" type="audio/mpeg"></audio>
+<div id="progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-pink-500 to-purple-500 z-[1000] w-0"></div>
+
+<section class="min-h-screen flex items-center justify-center text-center px-6">
+  <div class="hero-content">
+    <div class="inline-block px-4 py-1 rounded-full border border-pink-500/30 text-pink-400 text-sm mb-6 animate-pulse">✨ Bestie Connection: Online ✨</div>
+    <h1 class="text-5xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-400">Hey There 👋</h1>
+    <p class="mt-8 text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto italic">"Here’s a slightly nerdy, definitely original way for an IT guy to poke their best friend 😎💻✨"</p>
   </div>
 </section>
 
-<!-- GIF / MOMENT SECTION -->
-<section class="py-20 bg-[#10101e] text-center">
-  <h2 class="text-3xl font-bold text-purple-400 mb-8 neon">Moments That Feel Good 🤍</h2>
-  <div class="flex justify-center gap-8 px-4 flex-wrap">
-    <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" class="w-40 h-40 object-cover rounded-xl float" />
-    <img src="https://media.giphy.com/media/l0MYC0LajbaPoEADu/giphy.gif" class="w-40 h-40 object-cover rounded-xl float" style="animation-delay:.5s" />
-    <img src="https://media.giphy.com/media/1BcfiGlOGXzQ0/giphy.gif" class="w-40 h-40 object-cover rounded-xl float" style="animation-delay:1s" />
-  </div>
+<section class="py-20 px-6">
+    <h2 class="text-3xl font-bold text-center text-purple-400 mb-16 font-['Dancing_Script'] text-5xl">Moments That Make Us Smile 🤍</h2>
+    <div class="flex flex-wrap justify-center gap-12 max-w-6xl mx-auto">
+        <div class="polaroid"><img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" class="w-64 h-64 object-cover"></div>
+        <div class="polaroid" style="transform: rotate(4deg);"><img src="https://media.giphy.com/media/l0MYC0LajbaPoEADu/giphy.gif" class="w-64 h-64 object-cover"></div>
+        <div class="polaroid" style="transform: rotate(-2deg);"><img src="https://media.giphy.com/media/1BcfiGlOGXzQ0/giphy.gif" class="w-64 h-64 object-cover"></div>
+    </div>
 </section>
 
-<!-- THOUGHT CARDS -->
 <section class="py-32 px-6">
-  <h2 class="text-3xl md:text-5xl font-bold text-center text-purple-400 mb-20 neon">A Few Thoughts 🌙</h2>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-10 max-w-6xl mx-auto">
-    <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 glow float">"Not everything needs to be special right away — some things grow on you naturally."</div>
-    <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 glow float" style="animation-delay:.4s">"The best conversations happen when there’s no pressure to impress."</div>
-    <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 glow float" style="animation-delay:.8s">"This might just be the beginning, with plenty of good moments ahead."</div>
-    <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 glow float" style="animation-delay:1.2s">"No labels. No expectations. Just an easy, honest connection."</div>
-  </div>
+    <h2 class="text-3xl font-bold text-center text-pink-400 mb-16 uppercase tracking-widest">Certified Quirky Friend Alert 🚨</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <div class="glass-envelope quirky-card p-8 text-center">
+        <p class="text-gray-200">"A friend who’s awkwardly charming, suspiciously clever, and officially one-of-a-kind 😏💻"</p>
+      </div>
+      <div class="glass-envelope quirky-card p-8 text-center md:mt-12">
+        <p class="text-gray-200">"After a few chats with me, you’ll discover what kind of friend you definitely want to avoid 😂"</p>
+      </div>
+      <div class="glass-envelope quirky-card p-8 text-center">
+        <p class="text-gray-200">"I bring random facts, harmless chaos, and a little too much confidence — handle responsibly ⚡"</p>
+      </div>
+      <div class="glass-envelope quirky-card p-8 text-center md:mt-12">
+        <p class="text-gray-200">"Guaranteed to make you laugh, scratch your head, and secretly enjoy the weirdness 💥"</p>
+      </div>
+    </div>
 </section>
 
-<!-- SPECIAL MESSAGE -->
-<section class="py-32 bg-[#0b0b18] px-6">
-  <div class="max-w-4xl mx-auto text-center fadeUp">
-    <h2 class="text-3xl md:text-4xl font-bold text-pink-400 neon mb-8">A Small Note 🙂</h2>
-    <p class="text-gray-300 text-lg leading-relaxed">
-      This isn’t one of those dramatic messages that tries too hard —
-      because that would be awkward 😅
-      <br><br>
-      I just wanted to say this: knowing you has been easy, natural,
-      and genuinely fun. Conversations flow, jokes land,
-      and nothing feels forced.
-      <br><br>
-      You somehow make ordinary moments lighter,
-      and that’s a pretty rare skill.
-      <br><br>
-      No expectations here. No pressure.
-      Just hoping we keep collecting small, random moments
-      that later make us say —
-      <br>
-      <span class="italic text-purple-400">“Yeah… that was actually a good time.”</span>
-    </p>
-  </div>
-</section>
+<section class="py-32 px-6">
+  <div class="max-w-4xl mx-auto glass-envelope p-10 md:p-16 relative">
+    <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-pink-500 px-6 py-2 rounded-full font-bold text-sm shadow-lg">💌 OPENED MESSAGE</div>
+    <h3 class="text-3xl font-['Dancing_Script'] text-pink-400 mb-8">A Small Note 🙂</h3>
+    <div class="text-lg md:text-xl leading-relaxed text-gray-300 min-h-[300px]">
+        <span id="typewriter"></span><span id="cursor-1" class="cursor"></span>
+    </div>
 
-<!-- LITTLE THINGS -->
-<section class="py-32 bg-gradient-to-br from-[#120a2a] to-[#05050d] px-6">
-  <div class="max-w-5xl mx-auto text-center fadeUp">
-    <h2 class="text-3xl md:text-5xl font-bold text-purple-400 neon mb-10">The Little Things 🌱</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-      <div class="bg-white/5 rounded-3xl p-8 glow float">"It’s okay if words are few — as long as the vibe feels right."</div>
-      <div class="bg-white/5 rounded-3xl p-8 glow float" style="animation-delay:.4s">"Not every day needs something new; sometimes familiar is enough."</div>
-      <div class="bg-white/5 rounded-3xl p-8 glow float" style="animation-delay:.8s">"No rush. No race. Just moving at a comfortable pace."</div>
+    <div class="mt-12 text-center">
+        <button id="surpriseBtn" onclick="triggerSurprise()" class="px-10 py-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full font-bold shadow-2xl hover:scale-110 active:scale-95 transition-all">
+            Click For A Surprise 💖
+        </button>
+    </div>
+
+    <div id="secret-box" class="p-8 rounded-2xl text-left">
+        <h4 class="text-pink-400 font-bold mb-4 italic">To Someone Special...</h4>
+        <div class="text-gray-200 text-lg md:text-xl italic leading-relaxed">
+            <span id="secret-typewriter"></span><span id="cursor-2" class="cursor hidden"></span>
+        </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="py-10 text-center text-gray-400">
-  <p>
-    — From your <span class="text-pink-400 font-semibold">handsome</span> friend<br>
-    <span class="text-purple-400 font-semibold">Gajendra 😌✨</span>
-  </p>
+<section class="py-20 px-6">
+    <div class="max-w-3xl mx-auto text-center glass-envelope p-8 border-pink-500/20">
+        <p class="text-pink-300 italic text-lg">"And just one more thing... if my words or my random logic ever made you feel bad, I’m truly sorry. It’s never intentional—just a side effect of my over-engineered brain! 🙏✨"</p>
+    </div>
+</section>
+
+<footer class="py-32 text-center">
+  <h2 class="text-4xl font-bold text-pink-500 mb-2">Handsome Friend</h2>
+  <div class="text-5xl font-['Dancing_Script'] text-purple-400">Gajendra 😌✨</div>
 </footer>
 
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+    const music = document.getElementById('shinchanMusic');
+
+    // Star Generation Loop
+    const starContainer = document.getElementById('star-container');
+    for (let i = 0; i < 150; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 3 + 'px';
+        star.style.width = size; star.style.height = size;
+        star.style.top = Math.random() * 100 + '%'; star.style.left = Math.random() * 100 + '%';
+        star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+        starContainer.appendChild(star);
+    }
+
+    // Continuous Floating Sparkles
+    setInterval(() => {
+        const emojis = ['✨', '🌸', '💖', '⭐'];
+        const item = document.createElement('div');
+        item.className = 'bg-float text-xl';
+        item.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+        item.style.left = Math.random() * 100 + 'vw';
+        document.body.appendChild(item);
+        setTimeout(() => item.remove(), 10000);
+    }, 2000);
+
+    // Main Typewriter
+    const noteText = `So here’s the truth: \nI’m not your average friend. I carry unexpected humor, a slightly over-engineered brain, and a natural talent for creating harmless chaos.\n\n"And somehow, these little moments became more fun than they had any right to be 😜"`;
+
+    let i = 0;
+    function typeWriter1() {
+        if (i < noteText.length) {
+            let char = noteText.charAt(i);
+            document.getElementById("typewriter").innerHTML += char === "\n" ? "<br>" : char;
+            i++; setTimeout(typeWriter1, 35);
+        } else { document.getElementById("cursor-1").style.display = 'none'; }
+    }
+    ScrollTrigger.create({ trigger: "#typewriter", start: "top 80%", onEnter: () => typeWriter1(), once: true });
+
+    // Surprise Typewriter (Cuteness Content)
+    const secretText = `Hey! I was just thinking... you know, there’s a very specific kind of magic in the way you are.\n\nIt’s not just that you’re incredibly cute (let’s be honest, you definitely are!), it’s the amazing kindness you carry so effortlessly.\n\nYou have this rare way of making the world feel a little softer just by being yourself. You’re truly special, and I’m so glad I get to see it. ✨💖`;
+
+    let k = 0;
+    function typeWriterSecret() {
+        document.getElementById("cursor-2").classList.remove('hidden');
+        if (k < secretText.length) {
+            let char = secretText.charAt(k);
+            document.getElementById("secret-typewriter").innerHTML += char === "\n" ? "<br>" : char;
+            k++; setTimeout(typeWriterSecret, 45);
+        } else { document.getElementById("cursor-2").style.display = 'none'; }
+    }
+
+    function triggerSurprise() {
+        music.play();
+        document.getElementById("surpriseBtn").style.display = "none";
+        document.getElementById("secret-box").style.display = "block";
+        
+        // Heart Explosion Animation
+        for(let j=0; j<40; j++) {
+            setTimeout(() => {
+                const item = document.createElement('div');
+                item.className = 'floating-heart text-3xl';
+                item.innerHTML = ['💖','✨','🌸'][Math.floor(Math.random()*3)];
+                item.style.left = Math.random() * 100 + 'vw';
+                item.style.bottom = '-50px';
+                document.body.appendChild(item);
+                setTimeout(() => item.remove(), 5000);
+            }, j * 100);
+        }
+        setTimeout(typeWriterSecret, 500);
+    }
+
+    // Scroll Progress Bar
+    window.onscroll = () => {
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        document.getElementById("progress").style.width = (winScroll / height) * 100 + "%";
+    };
+</script>
 </body>
 </html>
